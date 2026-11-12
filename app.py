@@ -17,7 +17,7 @@ st.caption(
 st.divider()
 
 # Chia giao diện chính thành 2 cột lớn
-col_ai, col_lab = st.columns([1, 1.2], gap="large")
+col_ai, col_lab = st.columns((1, 1.2), gap="large")
 
 # =====================================================================
 # CỘT 1: CÔNG NGHỆ CHUYÊN SÂU AI TỐI ƯU VI MẠCH (EDA)
@@ -31,40 +31,40 @@ with col_ai:
 
   du_an_mach = st.selectbox(
       "Chọn vi mạch hệ thống cần xử lý:",
-      [
+      (
           (
               "Mạch IoT cảnh báo lũ lụt & sạt lở ngầm (Vùng núi Nho Quan - Gia"
               " Viễn)"
           ),
           "Mạch cảm biến tưới tiêu thông minh (Vùng đồi dứa Tam Điệp)",
           "Mạch điều khiển hệ thống chiếu sáng thông minh (Cố đô Hoa Lư)",
-      ],
+      ),
   )
 
   if "lũ lụt" in du_an_mach:
-    components_list = [
+    components_list = (
         "Pin_NangLuong",
         "ESP32_Core",
         "CamBien_Mua",
         "CamBien_DoAmDat",
         "Loa_CanhBao",
-    ]
+    )
   elif "tưới tiêu" in du_an_mach:
-    components_list = [
+    components_list = (
         "Nguon_12V",
         "MCU_DieuKhien",
         "CamBien_pH",
         "Relay_Bom",
         "Module_LoRa",
-    ]
+    )
   else:
-    components_list = [
+    components_list = (
         "Nguon_AC_DC",
         "ViXuLy_TrungTam",
         "CamBien_AnhSang",
         "Mach_Dimmer",
         "Den_LED",
-    ]
+    )
 
   generations = st.slider(
       "Chọn số thế hệ AI học và thử nghiệm (Generations):",
@@ -77,9 +77,9 @@ with col_ai:
   def tinh_chieu_dai_day(toa_do):
     tong_do_dai = 0
     for i in range(len(toa_do) - 1):
-      dx = abs(toa_do[i][0] - toa_do[i + 1][0])
-      dy = abs(toa_do[i][1] - toa_do[i + 1][1])
-      tong_do_dai += dx + dy
+      x1, y1 = toa_do[i]
+      x2, y2 = toa_do[i + 1]
+      tong_do_dai += abs(x1 - x2) + abs(y1 - y2)
     return tong_do_dai
 
   if st.button(
@@ -89,19 +89,18 @@ with col_ai:
     min_length = float("inf")
 
     for _ in range(generations):
-      current_placement = [
+      current_placement = tuple(
           (random.randint(15, 85), random.randint(15, 85))
           for _ in components_list
-      ]
+      )
       current_length = tinh_chieu_dai_day(current_placement)
 
       khoang_cach_hop_le = True
       for i in range(len(current_placement)):
+        x1, y1 = current_placement[i]
         for j in range(i + 1, len(current_placement)):
-          if (
-              abs(current_placement[i][0] - current_placement[j][0]) < 12
-              and abs(current_placement[i][1] - current_placement[j][1]) < 12
-          ):
+          x2, y2 = current_placement[j]
+          if abs(x1 - x2) < 12 and abs(y1 - y2) < 12:
             khoang_cach_hop_le = False
             break
 
@@ -110,7 +109,7 @@ with col_ai:
         best_placement = current_placement
 
     if best_placement is None:
-      best_placement = [(20 + i * 14, 25 + (i % 2) * 30) for i in range(5)]
+      best_placement = tuple((20 + i * 14, 25 + (i % 2) * 30) for i in range(5))
       min_length = tinh_chieu_dai_day(best_placement)
 
     st.success(
@@ -119,8 +118,8 @@ with col_ai:
     )
 
     fig, ax = plt.subplots(figsize=(5.5, 4.5))
-    x_vals = [pos[0] for pos in best_placement]
-    y_vals = [pos[1] for pos in best_placement]
+    x_vals = tuple(x for x, y in best_placement)
+    y_vals = tuple(y for x, y in best_placement)
 
     ax.plot(
         x_vals,
@@ -166,16 +165,16 @@ with col_lab:
       " cần mua phần cứng vật lý."
   )
 
-  tab1, tab2, tab3 = st.tabs([
+  tab1, tab2, tab3 = st.tabs((
       "🔌 Cổng Logic Vi Mạch",
       "🤖 Bản sao số Kit Arduino (Wokwi)",
       "📚 Chế độ Ngoại tuyến (Offline)",
-  ])
+  ))
 
   # TAB 1: BỘ THÍ NGHIỆM CỔNG LOGIC BÁN DẪN
   with tab1:
     st.subheader("Bộ thí nghiệm Cổng Logic Bán Dẫn")
-    c_in, c_gate, c_out = st.columns([1, 1.3, 1])
+    c_in, c_gate, c_out = st.columns((1, 1.3, 1))
 
     with c_in:
       st.markdown("**1. Nguồn vào**")
@@ -187,12 +186,12 @@ with col_lab:
       st.markdown("**2. Chọn Vi mạch**")
       gate_type = st.selectbox(
           "Loại cổng xử lý:",
-          [
+          (
               "Cổng AND (Nhân logic)",
               "Cổng OR (Cộng logic)",
               "Cổng XOR (Loại trừ)",
               "Cổng NAND (Phủ định AND)",
-          ],
+          ),
       )
 
       if "AND" in gate_type and "NAND" not in gate_type:
@@ -222,12 +221,12 @@ with col_lab:
     st.subheader("Mô phỏng mạch ứng dụng thực tế (0 VNĐ)")
     kit_choice = st.radio(
         "Chọn mô hình mạch thực hành:",
-        [
+        (
             "Mô hình 1: Trạm cảnh báo tín hiệu & Điều khiển 32 Servo (Nho Quan"
             " - Gia Viễn)",
             "Mô hình 2: Bộ xử lý phản xạ & Kiểm thử vi điều khiển (Simon Game"
             " Kit)",
-        ],
+        ),
         horizontal=False,
     )
 
@@ -254,18 +253,19 @@ with col_lab:
         " điện tử ngay cả khi mạng yếu."
     )
 
-    st.table({
-        "Đầu vào A":,
-        "Đầu vào B":,
-        "Cổng AND (A.B)":,
-        "Cổng OR (A+B)":,
-        "Cổng XOR (A⊕B)":,
-    })
+    st.markdown("""
+
+        | Đầu vào A | Đầu vào B | Cổng AND (A.B) | Cổng OR (A+B) | Cổng XOR (A⊕B) |
+        | :---: | :---: | :---: | :---: | :---: |
+        | 0 | 0 | 0 | 0 | 0 |
+        | 0 | 1 | 0 | 1 | 1 |
+        | 1 | 0 | 0 | 1 | 1 |
+        | 1 | 1 | 1 | 1 | 0 |
+        """)
+
     st.info(
         "💡 Mẹo thiết kế: Giảm tổng chiều dài dây dẫn trên bo mạch giúp giảm"
         " điện trở ký sinh, tiết kiệm pin cho các trạm quan trắc đặt tại vùng"
         " núi."
     )
 
-   
-   
