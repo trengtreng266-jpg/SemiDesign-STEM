@@ -1,12 +1,3 @@
-
- 
-
-  
-   
-
-
-
-
 import random
 import matplotlib.pyplot as plt
 import streamlit as st
@@ -38,7 +29,6 @@ with col_ai:
       " chiều dài dây dẫn và suy hao tín hiệu."
   )
 
-  # Chọn kịch bản mạch thực tế tại Ninh Bình
   du_an_mach = st.selectbox(
       "Chọn vi mạch hệ thống cần xử lý:",
       [
@@ -51,7 +41,6 @@ with col_ai:
       ],
   )
 
-  # Tùy chỉnh danh sách linh kiện tương ứng với từng dự án
   if "lũ lụt" in du_an_mach:
     components_list = [
         "Pin_NangLuong",
@@ -100,14 +89,12 @@ with col_ai:
     min_length = float("inf")
 
     for _ in range(generations):
-      # Tạo tọa độ ngẫu nhiên và đảm bảo các linh kiện không đè lên nhau
       current_placement = [
           (random.randint(15, 85), random.randint(15, 85))
           for _ in components_list
       ]
       current_length = tinh_chieu_dai_day(current_placement)
 
-      # Tránh trường hợp các điểm trùng khít gây chồng chữ trên biểu đồ
       khoang_cach_hop_le = True
       for i in range(len(current_placement)):
         for j in range(i + 1, len(current_placement)):
@@ -122,7 +109,6 @@ with col_ai:
         min_length = current_length
         best_placement = current_placement
 
-    # Dự phòng nếu chưa tìm thấy bộ điểm giãn cách đủ rộng
     if best_placement is None:
       best_placement = [(20 + i * 14, 25 + (i % 2) * 30) for i in range(5)]
       min_length = tinh_chieu_dai_day(best_placement)
@@ -132,7 +118,6 @@ with col_ai:
         f" **{min_length} mm**"
     )
 
-    # Vẽ sơ đồ mặt bằng mạch điện tử sắc nét
     fig, ax = plt.subplots(figsize=(5.5, 4.5))
     x_vals = [pos[0] for pos in best_placement]
     y_vals = [pos[1] for pos in best_placement]
@@ -181,7 +166,6 @@ with col_lab:
       " cần mua phần cứng vật lý."
   )
 
-  # Chia 3 Tab chức năng hợp nhất
   tab1, tab2, tab3 = st.tabs([
       "🔌 Cổng Logic Vi Mạch",
       "🤖 Bản sao số Kit Arduino (Wokwi)",
@@ -254,7 +238,7 @@ with col_lab:
           " truyền động."
       )
     else:
-      wokwi_url = "https://wokwi.com/projects/328451800839488084"
+      wokwi_url = "https://wokwi.com"
       st.caption(
           "👉 Nhấn nút Play màu xanh lá để kiểm thử tín hiệu nút nhấn và LED 7"
           " đoạn."
@@ -282,3 +266,6 @@ with col_lab:
         " điện trở ký sinh, tiết kiệm pin cho các trạm quan trắc đặt tại vùng"
         " núi."
     )
+
+   
+   
