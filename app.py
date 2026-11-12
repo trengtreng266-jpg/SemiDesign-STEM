@@ -1,92 +1,185 @@
+import random
+import matplotlib.pyplot as plt
 import streamlit as st
-import time
-# Kết nối trực tiếp với file thuật toán lõi ai_core.py vừa lưu
-from ai_core import chay_ai_toi_uu_mach
+import streamlit.components.v1 as components
 
-# Cấu hình trang web góc rộng chuyên nghiệp
+# Cấu hình trang Web
 st.set_page_config(
-    page_title="SemiDesign AI - Ninh Bình",
-    page_icon="🎛️",
-    layout="wide"
+    page_title="SemiDesign AI - Thiết Kế Vi Mạch & STEM", layout="wide"
 )
 
+# Tiêu đề chính của dự án
 st.title("🎛️ SemiDesign AI - Phần Mềm Thiết Kế Vi Mạch & Mô Phỏng STEM")
-st.caption("Dự án tham gia Cuộc thi Học sinh phổ thông với ý tưởng khởi nghiệp tỉnh Ninh Bình")
-st.markdown("---")
+st.caption("Dự án tham gia Hội thi Học sinh phổ thông với ý tưởng khởi nghiệp")
+st.divider()
 
-# Chia màn hình thành 2 cột
-col1, col2 = st.columns(2)
+# Chia giao diện chính thành 2 cột lớn
+col_ai, col_lab = st.columns([1, 1.2], gap="large")
 
-# ==============================================================================
-# CỘT 1: KẾT NỐI TRỰC TIẾP VỚI THUẬT TOÁN LÕI (ai_core.py)
-# ==============================================================================
-with col1:
-    st.header("🧠 1. Công Nghệ Lõi AI Tối Ưu (EDA)")
-    st.subheader("Thuật toán Di truyền tự động hóa cấu trúc vi mạch")
-    
-    de_tai = st.selectbox(
-        "Chọn hệ thống vi mạch cần xử lý:",
-        [
-            "Mạch IoT cảnh báo lũ lụt & sạt lở ngầm (Vùng núi Nho Quan - Gia Viễn)",
-            "Mạch chip tưới tiêu tự động dưới rễ cây (Đồng dứa Đồng Giao - Tam Điệp)",
-            "Mạch STEM cảm biến dây chuyền đóng gói (Đặc sản Cơm cháy Ninh Bình)"
-        ]
+# =====================================================================
+# CỘT 1: CÔNG NGHỆ CHUYÊN SÂU AI TỐI ƯU VI MẠCH (EDA)
+# =====================================================================
+with col_ai:
+  st.header("🧠 1. Công nghệ Chuyên sâu AI Tối Ưu (EDA)")
+  st.write(
+      "Thuật toán AI tự động tìm vị trí đặt linh kiện giúp giảm thiểu tổng"
+      " chiều dài dây dẫn trên bo mạch."
+  )
+
+  generations = st.slider(
+      "Chọn số thế hệ AI học và thử nghiệm (Generations):",
+      min_value=100,
+      max_value=10000,
+      value=2000,
+      step=100,
+  )
+
+  components_list = [
+      "Block_Power",
+      "MCU_Core",
+      "Gate_AND",
+      "Gate_OR",
+      "Output_LED",
+  ]
+
+  def tinh_chieu_dai_day(toa_do):
+    tong_do_dai = 0
+    for i in range(len(toa_do) - 1):
+      dx = abs(toa_do[i] - toa_do[i + 1])
+      dy = abs(toa_do[i] - toa_do[i + 1])
+      tong_do_dai += dx + dy
+    return tong_do_dai
+
+  if st.button("🚀 Chạy thuật toán AI tối ưu ngay", use_container_width=True):
+    best_placement = None
+    min_length = float("inf")
+
+    for _ in range(generations):
+      current_placement = [
+          (random.randint(10, 90), random.randint(10, 90))
+          for _ in components_list
+      ]
+      current_length = tinh_chieu_dai_day(current_placement)
+
+      if current_length < min_length:
+        min_length = current_length
+        best_placement = current_placement
+
+    st.success(
+        "✅ Hoàn thành! Tổng chiều dài dây nối ngắn nhất tìm được:"
+        f" **{min_length} mm**"
     )
-    
-    if st.button("🔥 KÍCH HOẠT AI TỐI ƯU SƠ ĐỒ BO MẠCH", use_container_width=True):
-        with st.spinner("Đang gọi thuật toán từ ai_core.py để tính toán 500 thế hệ..."):
-            time.sleep(0.5)
-            # Gọi trực tiếp hàm tính toán từ file ai_core.py
-            ket_qua = chay_ai_toi_uu_mach()
-            
-        st.success("✅ AI ĐÃ TỐI ƯU CẤU TRÚC VI MẠCH THÀNH CÔNG!")
-        
-        # Hiển thị các chỉ số thực nghiệm từ ai_core.py
-        m1, m2, m3 = st.columns(3)
-        m1.metric(label="Dây nối ban đầu", value=f"{ket_qua['chieu_dai_ban_dau']} mm")
-        m2.metric(label="Sau khi AI tối ưu", value=f"{ket_qua['chieu_dai_toi_uu']} mm", delta=f"-{ket_qua['ty_le_tiet_kiem']}%")
-        m3.metric(label="Chi phí phần cứng", value="0 VNĐ")
-        
-        st.write("📍 **Bảng tọa độ đặt linh kiện do AI xuất ra (mm):**")
-        for ten, (x, y) in zip(ket_qua["linh_kien"], ket_qua["toa_do_toi_uu"]):
-            st.code(f"+ {ten:<22}: X = {x:02d} mm, Y = {y:02d} mm")
 
-# ==============================================================================
-# CỘT 2: PHÒNG LAB MÔ PHỎNG TRỰC QUAN 0 VNĐ
-# ==============================================================================
-with col2:
-    st.header("🖥️ 2. Phòng Lab Mô Phỏng Trực Quan 0 VNĐ")
-    st.subheader("Bản sao số (Digital Twin) kiểm thử mạch thời gian thực")
-    
-    tab1, tab2, tab3 = st.tabs([
-        "🌧️ Mạch Lũ Lụt (Nho Quan)", 
-        "🍍 Mạch Tưới Tiêu (Tam Điệp)", 
-        "📡 Chế độ Dự phòng (Offline)"
-    ])
-    
-    with tab1:
-        wokwi_url_1 = "https://wokwi.com"
-        st.components.v1.html(
-            f'<iframe src="{wokwi_url_1}" width="100%" height="480px" style="border:1px solid #ccc; border-radius: 8px;"></iframe>', 
-            height=500
-        )
-        
-    with tab2:
-        wokwi_url_2 = "https://wokwi.com"
-        st.components.v1.html(
-            f'<iframe src="{wokwi_url_2}" width="100%" height="480px" style="border:1px solid #ccc; border-radius: 8px;"></iframe>', 
-            height=500
-        )
+    # Vẽ sơ đồ mặt bằng mạch điện tử
+    fig, ax = plt.subplots(figsize=(5, 4.5))
+    x_vals = [pos for pos in best_placement]
+    y_vals = [pos for pos in best_placement]
 
-    with tab3:
-        st.warning("⚠️ **Chế độ trình diễn Offline (Dùng khi phòng thi mất mạng Internet):**")
-        do_am_dat = st.slider("Kéo thanh trượt giả lập mực nước/độ ẩm ngầm (%):", 0, 100, 35)
-        if do_am_dat > 75:
-            st.error(f"🚨 CẢNH BÁO KHẨN CẤP ({do_am_dat}%): Nguy cơ sạt lở cao! Đã kích hoạt còi hú 85dB trên mặt đất!")
-        elif do_am_dat < 30:
-            st.info(f"💧 THÔNG BÁO NÔNG NGHIỆP ({do_am_dat}%): Đất khô! Vi mạch tự động bật máy bơm tưới rễ.")
-        else:
-            st.success(f"✅ TRẠNG THÁI AN TOÀN ({do_am_dat}%): Môi trường dưới lòng đất ổn định.")
+    ax.plot(x_vals, y_vals, linestyle="--", color="#ff4b4b", linewidth=2)
+    ax.scatter(x_vals, y_vals, color="#0068c9", s=180, zorder=5)
 
-st.markdown("---")
-st.markdown("<p style='text-align: center; color: gray;'>Dự án Khởi nghiệp Học sinh phổ thông tỉnh Ninh Bình - SemiDesign AI</p>", unsafe_allow_html=True)
+    for i, txt in enumerate(components_list):
+      ax.annotate(
+          f"{txt}\n({x_vals[i]}, {y_vals[i]})",
+          (x_vals[i], y_vals[i]),
+          textcoords="offset points",
+          xytext=(0, 10),
+          ha="center",
+          fontsize=8,
+          fontweight="bold",
+      )
+
+    ax.set_xlim(0, 100)
+    ax.set_ylim(0, 100)
+    ax.set_title("Sơ Đồ Bố Trí Mạch Tối Ưu Bởi AI", fontsize=11)
+    ax.set_xlabel("Tọa độ trục X (mm)")
+    ax.set_ylabel("Tọa độ trục Y (mm)")
+    ax.grid(True, linestyle=":", alpha=0.6)
+
+    st.pyplot(fig)
+
+# =====================================================================
+# CỘT 2: PHÒNG LAB ẢO MÔ PHỎNG STEM KIT (0 VNĐ)
+# =====================================================================
+with col_lab:
+  st.header("🖥️ 2. Phòng Lab Mô Phỏng Trực Quan (0 VNĐ)")
+  st.write(
+      "Môi trường thực hành lắp ráp và kiểm thử mạch điện tử không cần mua phần"
+      " cứng vật lý."
+  )
+
+  tab1, tab2 = st.tabs(
+      ["🔌 Thực hành Cổng Logic Vi Mạch", "🤖 Mô phỏng Kit Arduino Thực Tế"]
+  )
+
+  # TAB 1: THÍ NGHIỆM CỔNG LOGIC SỐ
+  with tab1:
+    st.subheader("Bộ thí nghiệm Cổng Logic Bán Dẫn")
+    c_in, c_gate, c_out = st.columns([1, 1.3, 1])
+
+    with c_in:
+      st.markdown("**1. Nguồn vào**")
+      input_a = st.toggle("Nguồn A (Input A)", value=True)
+      input_b = st.toggle("Nguồn B (Input B)", value=False)
+      st.info(f"A = **{int(input_a)}** | B = **{int(input_b)}**")
+
+    with c_gate:
+      st.markdown("**2. Chọn Vi mạch**")
+      gate_type = st.selectbox(
+          "Loại cổng xử lý:",
+          [
+              "Cổng AND (Nhân logic)",
+              "Cổng OR (Cộng logic)",
+              "Cổng XOR (Loại trừ)",
+              "Cổng NAND (Phủ định AND)",
+          ],
+      )
+
+      if "AND" in gate_type and "NAND" not in gate_type:
+        output = input_a and input_b
+        formula = "Y = A . B"
+      elif "OR" in gate_type and "XOR" not in gate_type:
+        output = input_a or input_b
+        formula = "Y = A + B"
+      elif "XOR" in gate_type:
+        output = input_a != input_b
+        formula = "Y = A ⊕ B"
+      else:
+        output = not (input_a and input_b)
+        formula = "Y = ¬(A . B)"
+
+      st.caption(f"Công thức Boole: `{formula}`")
+
+    with c_out:
+      st.markdown("**3. Đèn LED ra**")
+      if output:
+        st.success("💡 ĐÈN SÁNG (Mức 1)")
+      else:
+        st.error("⚫ ĐÈN TẮT (Mức 0)")
+
+  # TAB 2: NHÚNG KIT MÔ PHỎNG ARDUINO WOKWI
+  with tab2:
+    st.subheader("Thực hành lập trình & chạy thử mạch Vi điều khiển")
+    kit_choice = st.radio(
+        "Chọn bộ Kit thí nghiệm:",
+        [
+            "Kit 1: Trò chơi trí nhớ Simon Game (Arduino + LED 7 đoạn)",
+            "Kit 2: Hệ thống điều khiển 32 Động cơ Servo (Arduino Mega)",
+        ],
+        horizontal=False,
+    )
+
+    if "Kit 1" in kit_choice:
+      wokwi_url = "https://wokwi.com"
+      st.caption(
+          "👉 Nhấn nút Play màu xanh lá trên mạch để chơi thử và xem điểm số"
+          " trên LED 7 đoạn."
+      )
+    else:
+      wokwi_url = "https://wokwi.com"
+      st.caption(
+          "👉 Nhấn nút Play màu xanh lá để quan sát 32 động cơ Servo chạy hiệu"
+          " ứng sóng và la bàn."
+      )
+
+    components.iframe(wokwi_url, height=500, scrolling=True)
