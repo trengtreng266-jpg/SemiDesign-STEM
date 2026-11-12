@@ -1,3 +1,8 @@
+
+ 
+
+  
+   
 import random
 import matplotlib.pyplot as plt
 import streamlit as st
@@ -45,8 +50,9 @@ with col_ai:
   def tinh_chieu_dai_day(toa_do):
     tong_do_dai = 0
     for i in range(len(toa_do) - 1):
-      dx = abs(toa_do[i] - toa_do[i + 1])
-      dy = abs(toa_do[i] - toa_do[i + 1])
+      # Lấy riêng tọa độ X [0] và tọa độ Y [1] để tính khoảng cách
+      dx = abs(toa_do[i][0] - toa_do[i + 1][0])
+      dy = abs(toa_do[i][1] - toa_do[i + 1][1])
       tong_do_dai += dx + dy
     return tong_do_dai
 
@@ -70,10 +76,10 @@ with col_ai:
         f" **{min_length} mm**"
     )
 
-    # Vẽ sơ đồ mặt bằng mạch điện tử
+    # Vẽ sơ đồ mặt bằng mạch điện tử (Lấy riêng X [0] và Y)
     fig, ax = plt.subplots(figsize=(5, 4.5))
-    x_vals = [pos for pos in best_placement]
-    y_vals = [pos for pos in best_placement]
+    x_vals = [pos[0] for pos in best_placement]
+    y_vals = [pos[1] for pos in best_placement]
 
     ax.plot(x_vals, y_vals, linestyle="--", color="#ff4b4b", linewidth=2)
     ax.scatter(x_vals, y_vals, color="#0068c9", s=180, zorder=5)
